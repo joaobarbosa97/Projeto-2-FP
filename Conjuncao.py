@@ -143,12 +143,8 @@ def e_tabuleiro(t):
         return True
                         
     return False
-                                
-                                    
-                                    
-                                    
-                                
-                        
+                            
+                                       
                            
 #----------------------------AUXILIARES-------------------------------#
 
@@ -169,3 +165,46 @@ def e_especificacao(t):
             
     return True
 
+
+
+def cria_especificacao(t):
+    
+    if e_tabuleiro(t):
+            
+        res = ()
+        
+        ac = 0
+            
+        for i in range(len(t['celulas'])):
+            
+            res = res[:i] + ((ac,),) + res[(i+1):] 
+                                    
+            ac = 0            
+            
+            res = res + ((),)
+            
+            for y in range(len(t['celulas'][i])):
+                
+                if t['celulas'][i][y] == 2:
+                    
+                    ac = ac + 1
+                    
+                if ac != 0 and t['celulas'][i][y] != 2:
+                    
+                    res = res[:i] + ((ac,),) + res[(i+1):] 
+                        
+                    ac = 0
+                        
+            for x in range(len(res)):
+                
+                if res[x] == ():
+                    
+                    res = res[:x] + ((0,),) + res[(x+1):]                    
+    return res
+                    
+e = (((2,), (3,), (2,), (2, 2), (2,)), ((2,), (1, 2), (2,), (3,), (3,)))
+t = cria_tabuleiro(e)
+                
+t2 = {'esp-coluna': ((2,), (1, 2), (2,), (3,), (3,)), 'esp-linha': ((2,), (3,), (2,), (2, 2), (2,)), 'celulas': [[1, 2, 2, 1, 1], [1, 1, 2, 2, 2], [1, 1, 1, 2, 2], [2, 0, 0, 2, 2], [2, 2, 1, 1, 1]]}
+
+cria_especificacao(t2)
