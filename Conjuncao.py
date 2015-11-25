@@ -1,6 +1,6 @@
 def cria_coordenada(n,m):
     
-    if isinstance(n,int) and isinstance(m,int) and n >= 0 and m >= 0:
+    if isinstance(n,int) and isinstance(m,int) and n > 0 and m > 0:
 
         return {'linha' : n, 'coluna' : m}
     
@@ -35,7 +35,7 @@ def e_coordenada(u):
     
     return isinstance(u,dict) and len(u) == 2 and 'linha' in u and 'coluna' in u\
        and isinstance(u['linha'],int) and isinstance(u['coluna'],int)\
-       and u['linha'] >= 0 and u['coluna'] >= 0
+       and u['linha'] > 0 and u['coluna'] > 0
 
 def coordenadas_iguais(c,q):
     
@@ -50,7 +50,7 @@ def coordenada_para_cadeia(c):
     
     if e_coordenada(c):
         
-        print('(' + str(coordenada_linha(c)) + ' : ' + str(coordenada_coluna(c)) + ')' )
+        print('(' + str(coordenada_linha(c)) + ' : ' + str(coordenada_coluna(c)) + ')' ,end = ' ')
         return
     
     raise ValueError('coordenada_para_cadeia: argumento invalido')
@@ -202,9 +202,45 @@ def cria_especificacao(t):
                     res = res[:x] + ((0,),) + res[(x+1):]                    
     return res
                     
-e = (((2,), (3,), (2,), (2, 2), (2,)), ((2,), (1, 2), (2,), (3,), (3,)))
-t = cria_tabuleiro(e)
-                
-t2 = {'esp-coluna': ((2,), (1, 2), (2,), (3,), (3,)), 'esp-linha': ((2,), (3,), (2,), (2, 2), (2,)), 'celulas': [[1, 2, 2, 1, 1], [1, 1, 2, 2, 2], [1, 1, 1, 2, 2], [2, 0, 0, 2, 2], [2, 2, 1, 1, 1]]}
+#-----------------------------------------------------------------------------#
+#                                                                             #
+#                               TAD-JOGADA                                    #
+#                                                                             #
+#-----------------------------------------------------------------------------#
 
-cria_especificacao(t2)
+
+
+def cria_jogada(c,n):
+    
+    if not isinstance(n,int) or not 1 <= n <= 2 or not e_coordenada(c):
+        
+        raise ValueError('cria_jogada: argumentos invalidos')
+    
+    return {'coordenada': c , 'valor': n }
+
+
+def jogada_coordenada(j):
+    
+    return j['coordenada']
+
+def jogada_valor(j):
+    
+    return j['valor']
+
+def e_jogada(u):
+    
+    return isinstance(u,dict) and len(u) == 2 and 'valor' in u and\
+           'coordenada' in u and isinstance(u['valor'],int) and\
+           1 <= u['valor'] <= 2 and e_coordenada(u['coordenada'])
+
+def jogadas_iguais(j1,j2):
+    
+    return jogada_valor(j1) == jogada_valor(j2) and coordenadas_iguais(jogada_coordenada(j1),jogada_coordenada(j2))
+
+def jogada_para_cadeia(j):
+    
+    coordenada_para_cadeia(jogada_coordenada(j))
+    print('--> ' + str(jogada_valor(j)))
+    return
+
+
