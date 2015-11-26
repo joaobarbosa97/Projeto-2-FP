@@ -1,46 +1,35 @@
-def cria_coordenada(n,m):
+from functools import reduce
+
+def cria_coordenada(l, c):
     
-    if isinstance(n,int) and isinstance(m,int) and n > 0 and m > 0:
-
-        return {'linha' : n, 'coluna' : m}
+    if isinstance(l, int) and isinstance(c, int) and l > 0 and c > 0:
+        return {'linha' : l, 'coluna' : c}
     
-    raise ValueError('cria_coordenadas: argumentos invalidos')
-
-
-
+    raise ValueError('cria_coordenada: argumentos invalidos')
 
 def coordenada_linha(c):
     
     if e_coordenada(c):
-        
         return int(c['linha'])
     
-    raise ValueError('coordenada_coluna: argumento invalido')
-
-
-
+    raise ValueError('coordenada_linha: argumento invalido')
 
 def coordenada_coluna(c):
     
     if e_coordenada(c):
-        
         return int(c['coluna'])
     
     raise ValueError('coordenada_coluna: argumento invalido')
 
-
-
-
 def e_coordenada(u):
     
-    return isinstance(u,dict) and len(u) == 2 and 'linha' in u and 'coluna' in u\
-       and isinstance(u['linha'],int) and isinstance(u['coluna'],int)\
-       and u['linha'] > 0 and u['coluna'] > 0
+    return isinstance(u, dict) and len(u) == 2 and 'linha' in u\
+    and 'coluna' in u and isinstance(u['linha'], int)\
+    and isinstance(u['coluna'], int) and u['linha'] > 0 and u['coluna'] > 0
 
-def coordenadas_iguais(c,q):
+def coordenadas_iguais(c, q):
     
     if e_coordenada(c) and e_coordenada(q):
-        
         return coordenada_linha(c) == coordenada_linha(q)\
         and coordenada_coluna(c) == coordenada_coluna(q)
 
@@ -49,12 +38,9 @@ def coordenadas_iguais(c,q):
 def coordenada_para_cadeia(c):
     
     if e_coordenada(c):
-        
-        print('(' + str(coordenada_linha(c)) + ' : ' + str(coordenada_coluna(c)) + ')' ,end = ' ')
-        return
-    
-    raise ValueError('coordenada_para_cadeia: argumento invalido')
-
+        print('"(' + str(coordenada_linha(c)) + ' : ' + str(coordenada_coluna(c)) + ')"', end = '')
+    else:
+        raise ValueError('coordenada_para_cadeia: argumento invalido')
 
 #----------------------------------------------------------------------------#
 #                                                                            #
@@ -62,111 +48,167 @@ def coordenada_para_cadeia(c):
 #                                                                            #
 #----------------------------------------------------------------------------#
 
+#auxiliar que verifica
+def tuplo_valido(t):
+
+    if len(t[0]) == len(t[1]):    
+        for i in t[0]:
+            if reduce(lambda x, y: x + y, i) + len(i) - 1 > len(t[1]):
+                return False
+        return True
+    else:
+        return False
+
+#auxiliar que verifica se o tuplo respeita as caracteristicas necessarias
+def tuplo_de_tuplos(t):
+    
+    if isinstance(t, tuple) and len(t) >= 1:
+        for t_contido in t:
+            if isinstance(t_contido, tuple) and len(t_contido) > 0:
+                for val in t_contido:
+                    if not isinstance(val, int):
+                        return False
+            else:
+                return False
+    else:
+        return False
+    
+    return True
+
+# auxiliar que verifica se as celulas dadas sao validas
+def celulas_validas(c):
+    
+    if isinstance(c, list):
+        # n.º linhas
+        dim = len(c)
+        
+        for i in c:
+            if isinstance(i, list):
+                if len(i) == dim:
+                    for i_ in i:
+                        if not(isinstance(i_, int) and 0 <= i_ <= 2):
+                            return False
+                else:
+                    return False
+            else:
+                return False
+    else:
+        return False
+    
+    return True
 
 def cria_tabuleiro(t):
     
-    if isinstance(t,tuple) and len(t) == 2 and isinstance(t[0],tuple)\
-       and isinstance(t[1],tuple):
-                
-        res = {'esp-linha': t[0], 'esp-coluna': t[1],\
-                        'celulas': [[0]*len(t[1])]}
-                
-        for i in range(len(t[0]) -1):
-                    
-            res['celulas'] += [[0]*len(t[1])]
+    if isinstance(t, tuple) and len(t) == 2 and tuplo_de_tuplos(t[0])\
+    and tuplo_de_tuplos(t[1]) and tuplo_valido(t):    
+        res = {'esp-linha': t[0], 'esp-coluna': t[1], 'celulas': [[0] * len(t[1])]}
+        
+        for i in range(len(t[0]) - 1):
+            res['celulas'] += [[0] * len(t[1])]
                     
         return res
-                
             
-    raise ValueError('cria_tabuleiro: argumento invalido')
-                
+    raise ValueError('cria_tabuleiro: argumento invalido')                
                 
 def tabuleiro_dimensoes(t):
     
     if e_tabuleiro(t):
-        
-        return (len(t['esp-linha']),len(t['esp-coluna']))
+        return (len(t['esp-linha']), len(t['esp-coluna']))
 
     raise ValueError('tabuleiro_dimensoes: argumento invalido')
 
 def tabuleiro_especificacoes(t):
     
     if e_tabuleiro(t):
-    
-        return (t['esp-linha'],t['esp-coluna'])
+        return (t['esp-linha'], t['esp-coluna'])
 
     raise ValueError('tabuleiro_especificacoes: argumento invalido')
 
-def tabuleiro_celula(t,c):
+def tabuleiro_celula(t, c):
     
     if e_tabuleiro(t) and e_coordenada(c):
-        
-        return t['celulas'][coordenada_linha(c) -1][coordenada_coluna(c) -1]
+        return t['celulas'][coordenada_linha(c) - 1][coordenada_coluna(c) - 1]
 
-    raise ValueError('tabuleiro_celula: argumento invalido')
+    raise ValueError('tabuleiro_celula: argumentos invalidos')
 
-def tabuleiro_preenche_celula(t,c,v):
+def tabuleiro_preenche_celula(t, c, v):
     
-    if e_tabuleiro(t) and e_coordenada(c) and isinstance(v,int) and 0 <= v <= 2:
-               
-        t['celulas'][coordenada_linha(c) -1][coordenada_coluna(c) -1] = v
+    if e_tabuleiro(t) and e_coordenada(c) and isinstance(v, int) and 0 <= v <= 2:
+        t['celulas'][coordenada_linha(c) - 1][coordenada_coluna(c) - 1] = v
         return t
     
-    raise ValueError('tabuleiro_preenche_celula: argumento invalido')
+    raise ValueError('tabuleiro_preenche_celula: argumentos invalidos')
 
 def e_tabuleiro(t):
+
+    return isinstance(t, dict) and len(t) == 3\
+    and 'esp-linha' in t and 'esp-coluna' in t and 'celulas' in t\
+    and tuplo_de_tuplos(t['esp-linha']) and tuplo_de_tuplos(t['esp-coluna'])\
+    and tuplo_valido((t['esp-linha'], t['esp-coluna']))\
+    and celulas_validas(t['celulas'])
+
+# auxiliar que nos da a dimensao maxima de uma especificacao para uma linha/coluna
+def max_esp(v):
+    m = 1
     
-    if isinstance(t,dict) and len(t) == 3 and 'esp-linha' in t and\
-       'esp-coluna' in t and 'celulas' in t and isinstance(t['esp-linha'],tuple) and\
-       isinstance(t['esp-coluna'],tuple) and isinstance(t['celulas'],list)\
-       and len(t['celulas']) == len(t['esp-linha']) and e_especificacao(t['esp-linha']) and\
-       e_especificacao(t['esp-coluna']):
+    for i in v:
+        if len(i) > m:
+            m = len(i)
     
-        for i in range(len(t['celulas'])):
-                                                                
-            if not isinstance(t['celulas'][i],list):
-                                                                    
-                return False
-                                
-            for n in range(len(t['celulas'][i])):
-            
-                if not isinstance(t['celulas'][i][n],int) and 0 <= t['celulas'][i][n] <= 2:
+    return m
+
+def escreve_tabuleiro(t):
+    
+    if e_tabuleiro(t):
+        
+        # dimensao
+        dim = tabuleiro_dimensoes(t)[0]
+        esp = tabuleiro_especificacoes(t)
+        
+        # especificacoes linha e coluna
+        esp_ls = esp[0]
+        esp_cs = esp[1]
+        
+        # dimensao maxima de uma especificacao de uma linha e de uma coluna
+        max_esp_l = max_esp(esp_ls)
+        max_esp_c = max_esp(esp_cs)
+        
+        # lista que contem os caracteres a apresentar
+        char = ['?', '.', 'x']
+        
+        '''for i in range(len(esp_cs)):
+            if len(esp_cs[i]) > i + 1:
+		FALTA CORRIGIR!!! JOAOTIAGO'''
                 
-                    return False 
-                                    
-            for i in range(len(t['celulas'])):
-                                                                                                    
-                if not len(t['celulas'][i]) == len(t['esp-coluna']):
-                                        
-                    return False
-                                            
-        return True
-                        
-    return False
-                            
-                                       
-                           
+        
+        for i in range(dim):
+            l = ''
+            
+            for i_ in range(dim):
+                # valor da celula correspondente
+                c = tabuleiro_celula(t, cria_coordenada(i + 1, i_ + 1))
+                # imprime-se o caracter correspondente
+                l += '[ ' + char[c] + ' ]'
+                
+            # especificacoes da linha
+            esp_l = esp_ls[i]
+            
+            # le-se o tuplo das especificacoes da linha
+            for i_ in range(len(esp_l)):
+                l += ' ' + str(esp_l[i_])
+            
+            # colocam-se as '|' no final, reservando um espaco previo
+            l += '  ' * (max_esp_l - len(esp_l)) + '|'
+
+            print(l)
+        
+    else:
+        raise ValueError('escreve_tabuleiro: argumento invalido')
+    
+t = cria_tabuleiro((((2,), (3,), (2,), (2, 2), (2,)), ((2,), (1, 2), (2,), (3,), (3,))))
+escreve_tabuleiro(t)
+
 #----------------------------AUXILIARES-------------------------------#
-
-
-def e_especificacao(t):
-    
-    for i in range(len(t)):
-                
-        if not isinstance(t[i],tuple):
-                    
-            return False
-                
-        for n in range(len(t[i])):
-                    
-            if not isinstance(t[i][n],int):
-             
-                return False   
-            
-    return True
-
-
-
 def cria_especificacao(t):
     
     if e_tabuleiro(t):
@@ -208,16 +250,12 @@ def cria_especificacao(t):
 #                                                                             #
 #-----------------------------------------------------------------------------#
 
-
-
-def cria_jogada(c,n):
+def cria_jogada(c, n):
     
-    if not isinstance(n,int) or not 1 <= n <= 2 or not e_coordenada(c):
-        
-        raise ValueError('cria_jogada: argumentos invalidos')
+    if isinstance(n, int) and 1 <= n <= 2 and e_coordenada(c):        
+        return {'coordenada': c , 'valor': n }
     
-    return {'coordenada': c , 'valor': n }
-
+    raise ValueError('cria_jogada: argumentos invalidos')
 
 def jogada_coordenada(j):
     
@@ -242,5 +280,3 @@ def jogada_para_cadeia(j):
     coordenada_para_cadeia(jogada_coordenada(j))
     print('--> ' + str(jogada_valor(j)))
     return
-
-
