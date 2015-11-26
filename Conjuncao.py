@@ -75,35 +75,18 @@ def tuplo_de_tuplos(t):
     
     return True
 
-# auxiliar que verifica se as celulas dadas sao validas
-def celulas_validas(c):
-    
-    if isinstance(c, list):
-        # n.º linhas
-        dim = len(c)
-        
-        for i in c:
-            if isinstance(i, list):
-                if len(i) == dim:
-                    for i_ in i:
-                        if not(isinstance(i_, int) and 0 <= i_ <= 2):
-                            return False
-                else:
-                    return False
-            else:
-                return False
-    else:
-        return False
-    
-    return True
-
 def cria_tabuleiro(t):
     
+    # verificacoes dos inputs
     if isinstance(t, tuple) and len(t) == 2 and tuplo_de_tuplos(t[0])\
     and tuplo_de_tuplos(t[1]) and tuplo_valido(t):    
-        res = {'esp-linha': t[0], 'esp-coluna': t[1], 'celulas': [[0] * len(t[1])]}
         
-        for i in range(len(t[0]) - 1):
+        #Criacao do dicionario que representa o tabuleiro,
+        #com os valores das especificacoes ja colocados
+        res = {'esp-linha': t[0], 'esp-coluna': t[1], 'celulas': []}
+        
+        #Preenchimento das celulas i* linhas
+        for i in range(len(t[0])):
             res['celulas'] += [[0] * len(t[1])]
                     
         return res
@@ -147,16 +130,6 @@ def e_tabuleiro(t):
     and tuplo_valido((t['esp-linha'], t['esp-coluna']))\
     and celulas_validas(t['celulas'])
 
-# auxiliar que nos da a dimensao maxima de uma especificacao para uma linha/coluna
-def max_esp(v):
-    m = 1
-    
-    for i in v:
-        if len(i) > m:
-            m = len(i)
-    
-    return m
-
 def escreve_tabuleiro(t):
     
     if e_tabuleiro(t):
@@ -176,14 +149,20 @@ def escreve_tabuleiro(t):
         # lista que contem os caracteres a apresentar
         char = ['?', '.', 'x']
         
-        '''for i in range(len(esp_cs)):
-            if len(esp_cs[i]) > i + 1:
-		FALTA CORRIGIR!!! JOAOTIAGO'''
+      
+        for i in range(max_esp_c):
+            l = ''
+            ct = 0
+            for i_ in range(len(esp_cs)):
                 
+                if len(esp_cs[i_]) >= max_esp_c - i:
+                    l +='     '*(i_-ct-1)+ '  ' +str(esp_cs[i_][-(max_esp_c - i)]) + '  '
+                    ct = i_
+            print(l)   
+       
         
         for i in range(dim):
             l = ''
-            
             for i_ in range(dim):
                 # valor da celula correspondente
                 c = tabuleiro_celula(t, cria_coordenada(i + 1, i_ + 1))
@@ -204,9 +183,7 @@ def escreve_tabuleiro(t):
         
     else:
         raise ValueError('escreve_tabuleiro: argumento invalido')
-    
-t = cria_tabuleiro((((2,), (3,), (2,), (2, 2), (2,)), ((2,), (1, 2), (2,), (3,), (3,))))
-escreve_tabuleiro(t)
+
 
 #----------------------------AUXILIARES-------------------------------#
 def cria_especificacao(t):
@@ -243,6 +220,39 @@ def cria_especificacao(t):
                     
                     res = res[:x] + ((0,),) + res[(x+1):]                    
     return res
+
+# auxiliar que nos da a dimensao maxima de uma especificacao para uma linha/coluna
+def max_esp(v):
+    m = 1
+    
+    for i in v:
+        if len(i) > m:
+            m = len(i)
+    
+    return m
+
+# auxiliar que verifica se as celulas dadas sao validas
+def celulas_validas(c):
+    
+    if isinstance(c, list):
+        # n. linhas
+        dim = len(c)
+        
+        for i in c:
+            if isinstance(i, list):
+                if len(i) == dim:
+                    for i_ in i:
+                        if not(isinstance(i_, int) and 0 <= i_ <= 2):
+                            return False
+                else:
+                    return False
+            else:
+                return False
+    else:
+        return False
+    
+    return True
+
                     
 #-----------------------------------------------------------------------------#
 #                                                                             #
@@ -280,3 +290,7 @@ def jogada_para_cadeia(j):
     coordenada_para_cadeia(jogada_coordenada(j))
     print('--> ' + str(jogada_valor(j)))
     return
+
+
+
+t = cria_tabuleiro((((3,),(5,),(3,1),(2,1),(3,3,4),(2,2,7),(6,1,1),(4,2,2),(1,1),(3,1),(6,),(2,7),(6,3,1),(1,2,2,1,1),(4,1,1,3),(4,2,2),(3,3,1),(3,3),(3,),(2,1)),((2,),(1,2),(2,3),(2,3),(3,1,1),(2,1,1),(1,1,1,2,2),(1,1,3,1,3),(2,6,4),(3,3,9,1),(5,3,2),(3,1,2,2),(2,1,7),(3,3,2),(2,4),(2,1,2),(2,2,1),(2,2), (1,),(1,))))
