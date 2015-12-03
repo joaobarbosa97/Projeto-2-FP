@@ -95,7 +95,9 @@ def tabuleiro_celula(t, c):
 
 def tabuleiro_preenche_celula(t, c, v):
     
-    if e_tabuleiro(t) and e_coordenada(c) and isinstance(v, int) and 0 <= v <= 2:
+    if e_tabuleiro(t) and e_coordenada(c) and isinstance(v, int) and 0 <= v <= 2\
+       and 0 < coordenada_linha(c) < tabuleiro_dimensoes(t)[0] and\
+       0 < coordenada_coluna(c) < tabuleiro_dimensoes(t)[0]:
         t['celulas'][coordenada_linha(c) - 1][coordenada_coluna(c) - 1] = v
         return t
     
@@ -338,21 +340,27 @@ def le_tabuleiro(s):
     
     ficheiro = open(s,'r')
     
-    return eval(ficheiro.readlines()[0])
+    tuplo = eval(ficheiro.readlines()[0])
+    
+    ficheiro.close()
+    
+    return tuplo
 
 def pede_jogada(t):
     
-    print('Intruduza uma jogada')
+    print('Introduza uma jogada')
     dim = tabuleiro_dimensoes(t)[0]
     coord = str(input('- coordenada entre (1 : 1) e (' + str(dim) + ' : ' + str(dim) + ')>> '))
-    valor = int(input('- valor >> '))
+    valor = input('- valor >> ')
     
-    if not (isinstance(valor, int) and 1 <= valor <= 2) or not\
-       ( isinstance(eval(coord[1]),int) and isinstance(eval(coord[5]),int)) or not\
-       (0 < int(coord[1]) <= dim and 0 < int(coord[5]) <= dim):
+    if not ( isinstance(eval(valor),int) and 0 < int(valor) < 3):
         
-        return False
+        raise ValueError('pede_jogada: argumento do valor invalido')
     
+    if not (len(coord) == 7 and isinstance(eval(coord[1]),int) and isinstance(eval(coord[5]),int)):
+    
+        raise ValueError('pede_jogada: argumento da coord invalido')
+        
     return cria_jogada(cria_coordenada(int(coord[1]),int(coord[5])),valor)
 
 def jogo_picross(c):
@@ -362,9 +370,13 @@ def jogo_picross(c):
     while not tabuleiro_cheio(t):
         
         escreve_tabuleiro(t)
+       # try:
         jogada = pede_jogada(t)
         t = tabuleiro_preenche_celula(t,jogada_coordenada(jogada),jogada_valor(jogada))
-    
+        
+        #except ValueError:
+         #   print('Jogada invalida')
+
     if tabuleiro_completo(t):
             
         print('GANHOU!!')
