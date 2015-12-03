@@ -1,5 +1,11 @@
 from functools import reduce
 
+class CoordError(Exception):
+    pass
+
+class ValorError(Exception):
+    pass
+
 #-----------------------------------------------------------------------------#
 #                                                                             #
 #                               TAD-Coordenada                                #
@@ -95,13 +101,13 @@ def tabuleiro_celula(t, c):
 
 def tabuleiro_preenche_celula(t, c, v):
     
-    if e_tabuleiro(t) and e_coordenada(c) and isinstance(v, int) and 0 <= v <= 2\
-       and 0 < coordenada_linha(c) < tabuleiro_dimensoes(t)[0] and\
-       0 < coordenada_coluna(c) < tabuleiro_dimensoes(t)[0]:
+    if e_tabuleiro(t) and e_coordenada(c) and isinstance(v, int) and 0 < v < 3\
+       and 0 < coordenada_linha(c) <= tabuleiro_dimensoes(t)[0] and\
+       0 < coordenada_coluna(c) <= tabuleiro_dimensoes(t)[0]:
         t['celulas'][coordenada_linha(c) - 1][coordenada_coluna(c) - 1] = v
         return t
     
-    raise ValueError('tabuleiro_preenche_celula: argumentos invalidos')
+    raise CoordError('tabuleiro_preenche_celula: argumentos invalidos')
 
 def e_tabuleiro(t):
 
@@ -348,20 +354,27 @@ def le_tabuleiro(s):
 
 def pede_jogada(t):
     
-    print('Introduza uma jogada')
+    print('Intruduza uma jogada')
     dim = tabuleiro_dimensoes(t)[0]
-    coord = str(input('- coordenada entre (1 : 1) e (' + str(dim) + ' : ' + str(dim) + ')>> '))
-    valor = input('- valor >> ')
-    
-    if not ( isinstance(eval(valor),int) and 0 < int(valor) < 3):
+    coord = input('- coordenada entre (1 : 1) e (' + str(dim) + ' : ' + str(dim) + ')>> ')
+    try:
+        valor = int(input('- valor >> '))
+
+    except ValueError:
+            
+        raise ValorError  
+
+    if not 0 < valor < 3:
         
-        raise ValueError('pede_jogada: argumento do valor invalido')
+        raise ValorError('pede_jogada: argumento do valor invalido')
     
     if not (len(coord) == 7 and isinstance(eval(coord[1]),int) and isinstance(eval(coord[5]),int)):
     
-        raise ValueError('pede_jogada: argumento da coord invalido')
+        raise CoordError('pede_jogada: argumento da coord invalido')
         
-    return cria_jogada(cria_coordenada(int(coord[1]),int(coord[5])),valor)
+    return cria_jogada(cria_coordenada(int(coord[1]),int(coord[5])),int(valor))
+    
+
 
 def jogo_picross(c):
     
@@ -370,12 +383,18 @@ def jogo_picross(c):
     while not tabuleiro_cheio(t):
         
         escreve_tabuleiro(t)
-       # try:
-        jogada = pede_jogada(t)
-        t = tabuleiro_preenche_celula(t,jogada_coordenada(jogada),jogada_valor(jogada))
         
-        #except ValueError:
-         #   print('Jogada invalida')
+        
+        try:
+            jogada = pede_jogada(t)
+        
+            t = tabuleiro_preenche_celula(t,jogada_coordenada(jogada),jogada_valor(jogada))
+        
+        except ValorError:
+            print('Jogada invalida: Argumento do valor invalido')
+                        
+        except CoordError:
+            print('Jogada invalida: Argumento da coordenada invalido')        
 
     if tabuleiro_completo(t):
             
